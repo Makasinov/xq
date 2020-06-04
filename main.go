@@ -47,73 +47,30 @@ func validateXML(text string) error {
 func beautifyOutput(text string) {
 	c := color.New(color.FgYellow)
 	isInsideTag := false
-	for it := 0; it < len(text); it++ {
-		var s string
-		if it+1 >= len(text) {
-			s = text[it:it+1] + " "
-		} else {
-			s = text[it : it+2]
-		}
 
-		if isInsideTag {
-			if slash(s) {
-				isInsideTag = true
-				c = color.New(color.FgYellow, color.Bold)
-				_, _ = c.Print(s[0:1])
-				c = color.New(color.FgCyan)
-				continue
-			}
-			_, _ = c.Print(s[0:1])
-		}
-
-		if al(s) {
-			isInsideTag = true
+	for _, char := range text {
+		if isInsideTag && !al(char) && !ar(char) {
 			c = color.New(color.FgYellow, color.Bold)
-			_, _ = c.Print(s[0:1])
-			c = color.New(color.FgCyan)
+			c.Printf("%c", char)
 			continue
 		}
-		if ar(s) {
+		if ar(char) {
 			isInsideTag = false
-			c = color.New(color.FgYellow, color.Bold)
-			_, _ = c.Print(s[1:2])
+			c = color.New(color.FgYellow)
+			c.Printf("%c", char)
+			continue
+		}
+		if al(char) {
+			isInsideTag = true
+			c = color.New(color.FgYellow)
+			c.Printf("%c", char)
 			continue
 		}
 		if !isInsideTag {
-			c = color.New(color.FgHiGreen, color.Bold)
-			if s[0:1] != ">" && s[0:1] != "<" {
-				_, _ = c.Print(s[0:1])
-			} else {
-				_, _ = c.Print("\n\t")
-			}
+			c = color.New(color.FgBlue)
+			c.Printf("%c", char)
+			continue
 		}
 	}
 
-}
-
-const (
-	AL    = "<"
-	AR    = ">"
-	SLASH = "/"
-)
-
-func al(s string) bool {
-	if s[0:1] == AL {
-		return true
-	}
-	return false
-}
-
-func ar(s string) bool {
-	if s[1:2] == AR {
-		return true
-	}
-	return false
-}
-
-func slash(s string) bool {
-	if s[0:1] == SLASH {
-		return true
-	}
-	return false
 }
